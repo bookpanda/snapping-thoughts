@@ -26,6 +26,9 @@ func main() {
 	userTokenSecret := os.Getenv("ACCESS_TOKEN_SECRET")
 	twitterClient := client.NewTwitterClient(consumerToken, consumerSecret, userToken, userTokenSecret)
 
+	// tableName := os.Getenv("TABLE_NAME")
+	// dynamoClient := client.NewDynamoDBClient(tableName)
+
 	text := flag.String("text", "hello3", "twitter text")
 	flag.Parse()
 
