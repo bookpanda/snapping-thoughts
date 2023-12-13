@@ -5,16 +5,11 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"net/http"
 	"os"
 
 	"github.com/bookpanda/snapping-thoughts/src/client"
 	"github.com/joho/godotenv"
 )
-
-type authorize struct{}
-
-func (a authorize) Add(req *http.Request) {}
 
 func loadEnv() {
 	err := godotenv.Load("../.env")

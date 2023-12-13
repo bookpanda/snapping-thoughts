@@ -10,6 +10,7 @@ import (
 	"github.com/g8rswimmer/go-twitter/v2"
 )
 
+// authorize is not used, but is required by the twitter client
 type authorize struct{}
 
 func (a authorize) Add(req *http.Request) {}
