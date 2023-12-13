@@ -2,7 +2,6 @@ package client
 
 import (
 	"context"
-	"errors"
 	"log"
 	"net/http"
 
@@ -47,13 +46,6 @@ type GoogleUserEmailResponse struct {
 	Firstname string `json:"given_name"`
 	Lastname  string `json:"family_name"`
 }
-
-var (
-	InvalidCode   = errors.New("Invalid code")
-	HttpError     = errors.New("Unable to get user info")
-	IOError       = errors.New("Unable to read google response")
-	InvalidFormat = errors.New("Google sent unexpected format")
-)
 
 func (c *TwitterClient) CreateTweet(text string) (*twitter.CreateTweetResponse, error) {
 	req := twitter.CreateTweetRequest{
