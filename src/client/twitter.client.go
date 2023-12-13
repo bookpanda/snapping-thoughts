@@ -41,12 +41,6 @@ func NewTwitterClient(
 	}
 }
 
-type GoogleUserEmailResponse struct {
-	Email     string `json:"email"`
-	Firstname string `json:"given_name"`
-	Lastname  string `json:"family_name"`
-}
-
 func (c *TwitterClient) CreateTweet(text string) (*twitter.CreateTweetResponse, error) {
 	req := twitter.CreateTweetRequest{
 		Text: text,
