@@ -28,15 +28,20 @@ func main() {
 	tableName := os.Getenv("TABLE_NAME")
 	dynamoClient := client.NewDynamoDBClient(tableName)
 
-	text, err := dynamoClient.GetItem()
+	item, err := dynamoClient.GetItem()
 	if err != nil {
 		log.Panicf("get item error: %v", err)
 	}
-	if text == nil {
+	if item == nil {
 		return
 	}
 
-	tweetResponse, err := twitterClient.CreateTweet(*text)
+	err = dynamoClient.UpdateItem(item.Id)
+	if err != nil {
+		log.Panicf("update item error: %v", err)
+	}
+
+	tweetResponse, err := twitterClient.CreateTweet(item.Message)
 	if err != nil {
 		log.Panicf("create tweet error: %v", err)
 	}

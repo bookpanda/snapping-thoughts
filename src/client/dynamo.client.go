@@ -2,6 +2,7 @@ package client
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -32,7 +33,7 @@ func NewDynamoDBClient(tableName string) *DynamoDBClient {
 
 type Item struct {
 	Id      string
-	IsUsed  string //no or date
+	IsUsed  string
 	Message string
 }
 
@@ -57,8 +58,8 @@ func (c *DynamoDBClient) CreateItem(item Item) error {
 	return nil
 }
 
-func (c *DynamoDBClient) GetItem() (*string, error) {
-	proj := expression.NamesList(expression.Name("Message"))
+func (c *DynamoDBClient) GetItem() (*Item, error) {
+	proj := expression.NamesList(expression.Name("Message"), expression.Name("Id"))
 	filt := expression.Name("IsUsed").Equal(expression.Value("no"))
 	expr, err := expression.NewBuilder().WithProjection(proj).WithFilter(filt).Build()
 	if err != nil {
@@ -79,7 +80,7 @@ func (c *DynamoDBClient) GetItem() (*string, error) {
 		log.Fatalf("Got error calling GetItem: %s", err)
 	}
 
-	if result.Items[0] == nil {
+	if len(result.Items) == 0 {
 		log.Println("Could not find unused item")
 		return nil, nil
 	}
@@ -91,5 +92,34 @@ func (c *DynamoDBClient) GetItem() (*string, error) {
 		panic(fmt.Sprintf("Failed to unmarshal Record, %v", err))
 	}
 
-	return &item.Message, nil
+	return &item, nil
+}
+
+func (c *DynamoDBClient) UpdateItem(id string) error {
+	log.Default().Println("Updating item with id: " + id)
+
+	key := map[string]*dynamodb.AttributeValue{
+		"Id": {
+			S: aws.String(id),
+		},
+	}
+
+	input := &dynamodb.UpdateItemInput{
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":u": {
+				S: aws.String(time.Now().String()),
+			},
+		},
+		TableName:        aws.String(c.tableName),
+		Key:              key,
+		ReturnValues:     aws.String("UPDATED_NEW"),
+		UpdateExpression: aws.String("set IsUsed = :u"),
+	}
+
+	_, err := c.client.UpdateItem(input)
+	if err != nil {
+		log.Fatalf("Got error calling UpdateItem: %s", err)
+	}
+
+	return nil
 }
