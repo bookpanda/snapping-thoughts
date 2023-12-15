@@ -1,10 +1,13 @@
 package client
 
 import (
+	"fmt"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+	"github.com/aws/aws-sdk-go/service/dynamodb/expression"
 
 	"log"
 )
@@ -34,13 +37,6 @@ type Item struct {
 }
 
 func (c *DynamoDBClient) CreateItem(item Item) error {
-
-	// item := Item{
-	// 	Id:      "1",
-	// 	IsUsed:  "no",
-	// 	Message: "ok bro",
-	// }
-
 	av, err := dynamodbattribute.MarshalMap(item)
 	log.Println(av)
 	if err != nil {
@@ -59,4 +55,41 @@ func (c *DynamoDBClient) CreateItem(item Item) error {
 	log.Println("Successfully added '" + item.Message + " to table " + c.tableName)
 
 	return nil
+}
+
+func (c *DynamoDBClient) GetItem() (*string, error) {
+	proj := expression.NamesList(expression.Name("Message"))
+	filt := expression.Name("IsUsed").Equal(expression.Value("no"))
+	expr, err := expression.NewBuilder().WithProjection(proj).WithFilter(filt).Build()
+	if err != nil {
+		log.Fatalf("Got error building expression: %s", err)
+	}
+
+	params := &dynamodb.ScanInput{
+		ExpressionAttributeNames:  expr.Names(),
+		ExpressionAttributeValues: expr.Values(),
+		FilterExpression:          expr.Filter(),
+		ProjectionExpression:      expr.Projection(),
+		TableName:                 aws.String(c.tableName),
+		Limit:                     aws.Int64(1),
+	}
+
+	result, err := c.client.Scan(params)
+	if err != nil {
+		log.Fatalf("Got error calling GetItem: %s", err)
+	}
+
+	if result.Items[0] == nil {
+		log.Println("Could not find unused item")
+		return nil, nil
+	}
+
+	item := Item{}
+
+	err = dynamodbattribute.UnmarshalMap(result.Items[0], &item)
+	if err != nil {
+		panic(fmt.Sprintf("Failed to unmarshal Record, %v", err))
+	}
+
+	return &item.Message, nil
 }

@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -26,11 +25,16 @@ func main() {
 	userTokenSecret := os.Getenv("ACCESS_TOKEN_SECRET")
 	twitterClient := client.NewTwitterClient(consumerToken, consumerSecret, userToken, userTokenSecret)
 
-	// tableName := os.Getenv("TABLE_NAME")
-	// dynamoClient := client.NewDynamoDBClient(tableName)
+	tableName := os.Getenv("TABLE_NAME")
+	dynamoClient := client.NewDynamoDBClient(tableName)
 
-	text := flag.String("text", "hello3", "twitter text")
-	flag.Parse()
+	text, err := dynamoClient.GetItem()
+	if err != nil {
+		log.Panicf("get item error: %v", err)
+	}
+	if text == nil {
+		return
+	}
 
 	tweetResponse, err := twitterClient.CreateTweet(*text)
 	if err != nil {
