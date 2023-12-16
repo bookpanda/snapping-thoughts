@@ -10,7 +10,9 @@ func (s Seed) CourseSeed12180464() error {
 			return err
 		}
 
-		i.IsUsed = item.IsUsed
+		if item.IsUsed != "" {
+			i.IsUsed = item.IsUsed
+		}
 		err = s.db.CreateItem(i)
 
 		if err != nil {
