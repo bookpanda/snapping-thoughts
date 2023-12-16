@@ -9,8 +9,9 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/aws/aws-sdk-go/service/dynamodb/expression"
+	"github.com/bookpanda/snapping-thoughts/src/model/item"
 
-	"log"
+	"github.com/rs/zerolog/log"
 )
 
 type DynamoDBClient struct {
@@ -31,17 +32,11 @@ func NewDynamoDBClient(tableName string) *DynamoDBClient {
 	}
 }
 
-type Item struct {
-	Id      string
-	IsUsed  string
-	Message string
-}
-
-func (c *DynamoDBClient) CreateItem(item Item) error {
+func (c *DynamoDBClient) CreateItem(item item.Item) error {
+	log.Info().Str("twitterClient", "CreateItem")
 	av, err := dynamodbattribute.MarshalMap(item)
-	log.Println(av)
 	if err != nil {
-		log.Fatalf("Got error marshalling new item: %s", err)
+		log.Fatal().Str("twitterClient", "Got error marshalling new item").Err(err)
 	}
 
 	input := &dynamodb.PutItemInput{
@@ -51,19 +46,20 @@ func (c *DynamoDBClient) CreateItem(item Item) error {
 
 	_, err = c.client.PutItem(input)
 	if err != nil {
-		log.Fatalf("Got error calling PutItem: %s", err)
+		log.Fatal().Str("twitterClient", "Got error calling PutItem").Err(err)
 	}
-	log.Println("Successfully added '" + item.Message + " to table " + c.tableName)
+	log.Info().Msgf("Successfully added item with id " + item.Id + " to table " + c.tableName)
 
 	return nil
 }
 
-func (c *DynamoDBClient) GetItem() (*Item, error) {
+func (c *DynamoDBClient) GetItem() (*item.Item, error) {
+	log.Info().Str("twitterClient", "GetItem")
 	proj := expression.NamesList(expression.Name("Message"), expression.Name("Id"))
 	filt := expression.Name("IsUsed").Equal(expression.Value("no"))
 	expr, err := expression.NewBuilder().WithProjection(proj).WithFilter(filt).Build()
 	if err != nil {
-		log.Fatalf("Got error building expression: %s", err)
+		log.Fatal().Str("twitterClient", "Got error building expression").Err(err)
 	}
 
 	params := &dynamodb.ScanInput{
@@ -77,27 +73,60 @@ func (c *DynamoDBClient) GetItem() (*Item, error) {
 
 	result, err := c.client.Scan(params)
 	if err != nil {
-		log.Fatalf("Got error calling GetItem: %s", err)
+		log.Fatal().Str("twitterClient", "Got error calling Scan").Err(err)
 	}
 
 	if len(result.Items) == 0 {
-		log.Println("Could not find unused item")
+		log.Info().Str("twitterClient", "Could not find unused item")
 		return nil, nil
 	}
 
-	item := Item{}
+	item := item.Item{}
 
 	err = dynamodbattribute.UnmarshalMap(result.Items[0], &item)
 	if err != nil {
 		panic(fmt.Sprintf("Failed to unmarshal Record, %v", err))
 	}
+	log.Info().Msgf("Successfully scanned item with id " + item.Id + " from table " + c.tableName)
+
+	return &item, nil
+}
+
+func (c *DynamoDBClient) GetItemWithId(id string) (*item.Item, error) {
+	log.Info().Str("twitterClient", "GetItemWithId").Str("id: ", id)
+
+	params := &dynamodb.GetItemInput{
+		TableName: aws.String(c.tableName),
+		Key: map[string]*dynamodb.AttributeValue{
+			"Id": {
+				S: aws.String(id),
+			},
+		},
+	}
+
+	result, err := c.client.GetItem(params)
+	if err != nil {
+		log.Fatal().Str("twitterClient", "Got error calling GetItem").Err(err)
+	}
+
+	if result == nil {
+		log.Info().Str("twitterClient", "Could not find item with id: "+id)
+		return nil, nil
+	}
+
+	item := item.Item{}
+
+	err = dynamodbattribute.UnmarshalMap(result.Item, &item)
+	if err != nil {
+		panic(fmt.Sprintf("Failed to unmarshal Record, %v", err))
+	}
+	log.Info().Msgf("Successfully got item with id " + item.Id + " from table " + c.tableName)
 
 	return &item, nil
 }
 
 func (c *DynamoDBClient) UpdateItem(id string) error {
-	log.Default().Println("Updating item with id: " + id)
-
+	log.Info().Str("twitterClient", "Updating item with id: "+id)
 	key := map[string]*dynamodb.AttributeValue{
 		"Id": {
 			S: aws.String(id),
@@ -118,8 +147,9 @@ func (c *DynamoDBClient) UpdateItem(id string) error {
 
 	_, err := c.client.UpdateItem(input)
 	if err != nil {
-		log.Fatalf("Got error calling UpdateItem: %s", err)
+		log.Fatal().Str("twitterClient", "Got error calling UpdateItem").Err(err)
 	}
+	log.Info().Msgf("Successfully updated item with id " + id + " to table " + c.tableName)
 
 	return nil
 }
