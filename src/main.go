@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/rs/zerolog/log"
 
 	"github.com/bookpanda/snapping-thoughts/src/client/dynamo"
@@ -48,7 +50,12 @@ func main() {
 	twitterClient := twitter.NewTwitterClient(consumerToken, consumerSecret, userToken, userTokenSecret)
 
 	tableName := os.Getenv("TABLE_NAME")
-	dynamoClient := dynamo.NewDynamoDBClient(tableName)
+	awsSession := session.Must(session.NewSessionWithOptions(session.Options{
+		SharedConfigState: session.SharedConfigEnable,
+	}))
+	db := dynamodb.New(awsSession)
+	dynamoClient := dynamo.NewDynamoDBClient(db, tableName)
+
 	handleArgs(dynamoClient)
 
 	item, err := dynamoClient.GetItem()

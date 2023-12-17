@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/aws/aws-sdk-go/service/dynamodb/expression"
@@ -19,13 +18,7 @@ type DynamoDBClient struct {
 	tableName string
 }
 
-func NewDynamoDBClient(tableName string) *DynamoDBClient {
-	sess := session.Must(session.NewSessionWithOptions(session.Options{
-		SharedConfigState: session.SharedConfigEnable,
-	}))
-
-	db := dynamodb.New(sess)
-
+func NewDynamoDBClient(db *dynamodb.DynamoDB, tableName string) *DynamoDBClient {
 	return &DynamoDBClient{
 		db,
 		tableName,
