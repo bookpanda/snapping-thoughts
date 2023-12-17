@@ -32,10 +32,10 @@ func NewDynamoDBClient(db Database, tableName string) *DynamoDBClient {
 }
 
 func (c *DynamoDBClient) CreateItem(item *dynamo.Item) error {
-	log.Info().Str("twitterClient", "CreateItem")
+	log.Info().Str("dynamoClient", "CreateItem")
 	av, err := dynamodbattribute.MarshalMap(item)
 	if err != nil {
-		log.Fatal().Str("twitterClient", "Got error marshalling new item").Err(err)
+		log.Fatal().Str("dynamoClient", "Got error marshalling new item").Err(err)
 		return err
 	}
 
@@ -46,7 +46,7 @@ func (c *DynamoDBClient) CreateItem(item *dynamo.Item) error {
 
 	_, err = c.db.PutItem(input)
 	if err != nil {
-		log.Fatal().Str("twitterClient", "Got error calling PutItem").Err(err)
+		log.Fatal().Str("dynamoClient", "Got error calling PutItem").Err(err)
 		return err
 	}
 	log.Info().Msgf("Successfully added item with id " + item.Id + " to table " + c.tableName)
@@ -55,12 +55,12 @@ func (c *DynamoDBClient) CreateItem(item *dynamo.Item) error {
 }
 
 func (c *DynamoDBClient) GetItem() (*dynamo.Item, error) {
-	log.Info().Str("twitterClient", "GetItem")
+	log.Info().Str("dynamoClient", "GetItem")
 	proj := expression.NamesList(expression.Name("Message"), expression.Name("Id"))
 	filt := expression.Name("IsUsed").Equal(expression.Value("no"))
 	expr, err := expression.NewBuilder().WithProjection(proj).WithFilter(filt).Build()
 	if err != nil {
-		log.Fatal().Str("twitterClient", "Got error building expression").Err(err)
+		log.Fatal().Str("dynamoClient", "Got error building expression").Err(err)
 	}
 
 	params := &dynamodb.ScanInput{
@@ -74,12 +74,12 @@ func (c *DynamoDBClient) GetItem() (*dynamo.Item, error) {
 
 	result, err := c.db.Scan(params)
 	if err != nil {
-		log.Fatal().Str("twitterClient", "Got error calling Scan").Err(err)
+		log.Fatal().Str("dynamoClient", "Got error calling Scan").Err(err)
 		return nil, err
 	}
 
 	if len(result.Items) == 0 {
-		log.Info().Str("twitterClient", "Could not find unused item")
+		log.Info().Str("dynamoClient", "Could not find unused item")
 		return nil, nil
 	}
 
@@ -87,7 +87,7 @@ func (c *DynamoDBClient) GetItem() (*dynamo.Item, error) {
 
 	err = dynamodbattribute.UnmarshalMap(result.Items[0], &item)
 	if err != nil {
-		log.Fatal().Str("twitterClient", "Got error unmarshalling item").Err(err)
+		log.Fatal().Str("dynamoClient", "Got error unmarshalling item").Err(err)
 		return nil, err
 	}
 	log.Info().Msgf("Successfully scanned item with id " + item.Id + " from table " + c.tableName)
@@ -96,7 +96,7 @@ func (c *DynamoDBClient) GetItem() (*dynamo.Item, error) {
 }
 
 func (c *DynamoDBClient) GetItemWithId(id string) (*dynamo.Item, error) {
-	log.Info().Str("twitterClient", "GetItemWithId").Str("id: ", id)
+	log.Info().Str("dynamoClient", "GetItemWithId").Str("id: ", id)
 
 	params := &dynamodb.GetItemInput{
 		TableName: aws.String(c.tableName),
@@ -109,12 +109,12 @@ func (c *DynamoDBClient) GetItemWithId(id string) (*dynamo.Item, error) {
 
 	result, err := c.db.GetItem(params)
 	if err != nil {
-		log.Fatal().Str("twitterClient", "Got error calling GetItem").Err(err)
+		log.Fatal().Str("dynamoClient", "Got error calling GetItem").Err(err)
 		return nil, err
 	}
 
 	if result == nil {
-		log.Info().Str("twitterClient", "Could not find item with id: "+id)
+		log.Info().Str("dynamoClient", "Could not find item with id: "+id)
 		return nil, nil
 	}
 
@@ -122,7 +122,7 @@ func (c *DynamoDBClient) GetItemWithId(id string) (*dynamo.Item, error) {
 
 	err = dynamodbattribute.UnmarshalMap(result.Item, &item)
 	if err != nil {
-		log.Fatal().Str("twitterClient", "Got error unmarshalling item").Err(err)
+		log.Fatal().Str("dynamoClient", "Got error unmarshalling item").Err(err)
 		return nil, err
 	}
 	log.Info().Msgf("Successfully got item with id " + item.Id + " from table " + c.tableName)
@@ -131,7 +131,7 @@ func (c *DynamoDBClient) GetItemWithId(id string) (*dynamo.Item, error) {
 }
 
 func (c *DynamoDBClient) UpdateItem(time time.Time, id string) error {
-	log.Info().Str("twitterClient", "Updating item with id: "+id)
+	log.Info().Str("dynamoClient", "Updating item with id: "+id)
 	key := map[string]*dynamodb.AttributeValue{
 		"Id": {
 			S: aws.String(id),
@@ -152,7 +152,7 @@ func (c *DynamoDBClient) UpdateItem(time time.Time, id string) error {
 
 	_, err := c.db.UpdateItem(input)
 	if err != nil {
-		log.Fatal().Str("twitterClient", "Got error calling UpdateItem").Err(err)
+		log.Fatal().Str("dynamoClient", "Got error calling UpdateItem").Err(err)
 		return err
 	}
 	log.Info().Msgf("Successfully updated item with id " + id + " to table " + c.tableName)

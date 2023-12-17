@@ -2,7 +2,8 @@ package tweet
 
 import (
 	"context"
-	"log"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/g8rswimmer/go-twitter/v2"
 )
@@ -24,14 +25,15 @@ func NewTwitterClient(
 }
 
 func (c *TwitterClient) CreateTweet(text string) (*twitter.CreateTweetResponse, error) {
-	req := twitter.CreateTweetRequest{
+	req := &twitter.CreateTweetRequest{
 		Text: text,
 	}
-	log.Println("Callout to create tweet callout")
+	log.Info().Str("twitterClient", "CreateTweet")
 
-	tweetResponse, err := c.client.CreateTweet(context.Background(), req)
+	tweetResponse, err := c.client.CreateTweet(context.Background(), *req)
 	if err != nil {
-		log.Panicf("Create tweet error: %v", err)
+		log.Fatal().Str("twitterClient", "Create tweet error").Err(err)
+		return nil, err
 	}
 
 	return tweetResponse, nil
