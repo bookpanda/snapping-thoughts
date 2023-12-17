@@ -67,7 +67,6 @@ func (c *DynamoDBClient) GetItem() (*dynamo.Item, error) {
 		FilterExpression:          expr.Filter(),
 		ProjectionExpression:      expr.Projection(),
 		TableName:                 aws.String(c.tableName),
-		Limit:                     aws.Int64(1),
 	}
 
 	result, err := c.db.Scan(params)
