@@ -14,11 +14,18 @@ import (
 )
 
 type DynamoDBClient struct {
-	db        *dynamodb.DynamoDB
+	db        Database
 	tableName string
 }
 
-func NewDynamoDBClient(db *dynamodb.DynamoDB, tableName string) *DynamoDBClient {
+type Database interface {
+	PutItem(input *dynamodb.PutItemInput) (*dynamodb.PutItemOutput, error)
+	Scan(input *dynamodb.ScanInput) (*dynamodb.ScanOutput, error)
+	GetItem(input *dynamodb.GetItemInput) (*dynamodb.GetItemOutput, error)
+	UpdateItem(input *dynamodb.UpdateItemInput) (*dynamodb.UpdateItemOutput, error)
+}
+
+func NewDynamoDBClient(db Database, tableName string) *DynamoDBClient {
 	return &DynamoDBClient{
 		db,
 		tableName,
