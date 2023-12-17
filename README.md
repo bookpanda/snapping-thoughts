@@ -30,7 +30,8 @@ Snapping-thoughts is a Twitter bot that tweets a random shower thought from the 
 -  Run `make tweet` or `go run src/main.go`
 
 ### Testing
-1. Run `make test` or `go test  -v -coverpkg ./... -coverprofile coverage.out -covermode count ./...`
+1. Make sure that in ```main.go```, line 121 is commented out and line 118 is uncommented.
+2. Run `make test` or `go test  -v -coverpkg ./... -coverprofile coverage.out -covermode count ./...`
 
 ### Deployment
 Consult this [AWS Lambda deployment for Go](https://docs.aws.amazon.com/lambda/latest/dg/golang-package.html) to deploy the app to AWS Lambda. Make sure comment the correct line in main.go before deploying.
