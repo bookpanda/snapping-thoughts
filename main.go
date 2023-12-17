@@ -57,7 +57,6 @@ type Response struct {
 }
 
 func HandleLambdaEvent(event *Event) (*Response, error) {
-	loadEnv()
 	consumerToken := os.Getenv("CONSUMER_API_KEY")
 	consumerSecret := os.Getenv("CONSUMER_API_SECRET")
 	userToken := os.Getenv("ACCESS_TOKEN")
@@ -114,6 +113,7 @@ func HandleLambdaEvent(event *Event) (*Response, error) {
 }
 
 func main() {
+	loadEnv()
 	// use this for seeding, testing
 	// HandleLambdaEvent(&Event{})
 
