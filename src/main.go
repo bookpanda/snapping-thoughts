@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"net/http"
 	"os"
@@ -95,9 +94,5 @@ func main() {
 		log.Error().Str("twitterClient", "create tweet error").Err(err)
 	}
 
-	enc, err := json.MarshalIndent(tweetResponse, "", "    ")
-	if err != nil {
-		log.Error().Str("twitterClient", "marshal response error").Err(err)
-	}
-	log.Info().Msg(string(enc))
+	log.Info().Msgf("Successfully tweeted: " + tweetResponse.Tweet.Text)
 }

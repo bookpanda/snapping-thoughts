@@ -32,7 +32,6 @@ func NewDynamoDBClient(db Database, tableName string) *DynamoDBClient {
 }
 
 func (c *DynamoDBClient) CreateItem(item *dynamo.Item) error {
-	log.Info().Str("dynamoClient", "CreateItem")
 	av, err := dynamodbattribute.MarshalMap(item)
 	if err != nil {
 		log.Fatal().Str("dynamoClient", "Got error marshalling new item").Err(err)
@@ -55,7 +54,6 @@ func (c *DynamoDBClient) CreateItem(item *dynamo.Item) error {
 }
 
 func (c *DynamoDBClient) GetItem() (*dynamo.Item, error) {
-	log.Info().Str("dynamoClient", "GetItem")
 	proj := expression.NamesList(expression.Name("Message"), expression.Name("Id"))
 	filt := expression.Name("IsUsed").Equal(expression.Value("no"))
 	expr, err := expression.NewBuilder().WithProjection(proj).WithFilter(filt).Build()
@@ -79,7 +77,7 @@ func (c *DynamoDBClient) GetItem() (*dynamo.Item, error) {
 	}
 
 	if len(result.Items) == 0 {
-		log.Info().Str("dynamoClient", "Could not find unused item")
+		log.Info().Str("dynamoClient", "GetItem").Msg("Could not find unused item")
 		return nil, nil
 	}
 
@@ -96,8 +94,6 @@ func (c *DynamoDBClient) GetItem() (*dynamo.Item, error) {
 }
 
 func (c *DynamoDBClient) GetItemWithId(id string) (*dynamo.Item, error) {
-	log.Info().Str("dynamoClient", "GetItemWithId").Str("id: ", id)
-
 	params := &dynamodb.GetItemInput{
 		TableName: aws.String(c.tableName),
 		Key: map[string]*dynamodb.AttributeValue{
@@ -114,7 +110,7 @@ func (c *DynamoDBClient) GetItemWithId(id string) (*dynamo.Item, error) {
 	}
 
 	if result == nil {
-		log.Info().Str("dynamoClient", "Could not find item with id: "+id)
+		log.Info().Str("dynamoClient", "GetItemWithId").Msgf("Could not find item with id: " + id)
 		return nil, nil
 	}
 
@@ -131,7 +127,6 @@ func (c *DynamoDBClient) GetItemWithId(id string) (*dynamo.Item, error) {
 }
 
 func (c *DynamoDBClient) UpdateItem(time time.Time, id string) error {
-	log.Info().Str("dynamoClient", "Updating item with id: "+id)
 	key := map[string]*dynamodb.AttributeValue{
 		"Id": {
 			S: aws.String(id),

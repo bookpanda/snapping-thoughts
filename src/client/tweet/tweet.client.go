@@ -28,7 +28,6 @@ func (c *TwitterClient) CreateTweet(text string) (*twitter.CreateTweetResponse, 
 	req := &twitter.CreateTweetRequest{
 		Text: text,
 	}
-	log.Info().Str("twitterClient", "CreateTweet")
 
 	tweetResponse, err := c.client.CreateTweet(context.Background(), *req)
 	if err != nil {
