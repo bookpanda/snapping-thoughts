@@ -1,8 +1,8 @@
 tweet:
-	go run ./src/.
+	go run main.go
 
 seed:
-	go run ./src/. seed
+	go run main.go seed
 
 test:
 	go vet ./...

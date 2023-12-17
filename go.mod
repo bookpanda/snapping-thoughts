@@ -3,6 +3,7 @@ module github.com/bookpanda/snapping-thoughts
 go 1.21.0
 
 require (
+	github.com/aws/aws-lambda-go v1.42.0 // indirect
 	github.com/aws/aws-sdk-go v1.49.1 // indirect
 	github.com/bxcodec/faker/v3 v3.8.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect

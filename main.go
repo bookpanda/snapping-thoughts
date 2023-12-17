@@ -48,7 +48,14 @@ func loadEnv() {
 	}
 }
 
-func main() {
+type Event struct {
+}
+
+type Response struct {
+	Message string `json:"Tweet"`
+}
+
+func HandleLambdaEvent(event *Event) (*Response, error) {
 	loadEnv()
 	consumerToken := os.Getenv("CONSUMER_API_KEY")
 	consumerSecret := os.Getenv("CONSUMER_API_SECRET")
@@ -78,21 +85,37 @@ func main() {
 	item, err := dynamoClient.GetItem()
 	if err != nil {
 		log.Error().Str("dynamoClient", "get item error").Err(err)
+		return nil, err
 	}
 	if item == nil {
-		return
+		return &Response{
+			Message: "No item found",
+		}, nil
 	}
 
 	time := time.Now()
 	err = dynamoClient.UpdateItem(time, item.Id)
 	if err != nil {
 		log.Error().Str("dynamoClient", "update item error").Err(err)
+		return nil, err
 	}
 
 	tweetResponse, err := twitterClient.CreateTweet(item.Message)
 	if err != nil {
 		log.Error().Str("twitterClient", "create tweet error").Err(err)
+		return nil, err
 	}
 
 	log.Info().Msgf("Successfully tweeted: " + tweetResponse.Tweet.Text)
+	return &Response{
+		Message: tweetResponse.Tweet.Text,
+	}, nil
+}
+
+func main() {
+	// use this for seeding, testing
+	HandleLambdaEvent(&Event{})
+
+	// use this for lambda deployment
+	// lambda.Start(HandleLambdaEvent)
 }
