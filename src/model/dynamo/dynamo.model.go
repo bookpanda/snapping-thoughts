@@ -1,4 +1,4 @@
-package item
+package dynamo
 
 type Item struct {
 	Id      string

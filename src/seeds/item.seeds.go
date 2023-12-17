@@ -1,8 +1,8 @@
 package seed
 
-import "github.com/bookpanda/snapping-thoughts/src/model/item"
+import "github.com/bookpanda/snapping-thoughts/src/model/dynamo"
 
-var items = []item.Item{
+var items = []dynamo.Item{
 	{
 		Id:      "1",
 		IsUsed:  "no",

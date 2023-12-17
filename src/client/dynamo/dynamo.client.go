@@ -9,7 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/aws/aws-sdk-go/service/dynamodb/expression"
-	"github.com/bookpanda/snapping-thoughts/src/model/item"
+	"github.com/bookpanda/snapping-thoughts/src/model/dynamo"
 
 	"github.com/rs/zerolog/log"
 )
@@ -32,7 +32,7 @@ func NewDynamoDBClient(tableName string) *DynamoDBClient {
 	}
 }
 
-func (c *DynamoDBClient) CreateItem(item *item.Item) error {
+func (c *DynamoDBClient) CreateItem(item *dynamo.Item) error {
 	log.Info().Str("twitterClient", "CreateItem")
 	av, err := dynamodbattribute.MarshalMap(item)
 	if err != nil {
@@ -53,7 +53,7 @@ func (c *DynamoDBClient) CreateItem(item *item.Item) error {
 	return nil
 }
 
-func (c *DynamoDBClient) GetItem() (*item.Item, error) {
+func (c *DynamoDBClient) GetItem() (*dynamo.Item, error) {
 	log.Info().Str("twitterClient", "GetItem")
 	proj := expression.NamesList(expression.Name("Message"), expression.Name("Id"))
 	filt := expression.Name("IsUsed").Equal(expression.Value("no"))
@@ -81,7 +81,7 @@ func (c *DynamoDBClient) GetItem() (*item.Item, error) {
 		return nil, nil
 	}
 
-	item := item.Item{}
+	item := dynamo.Item{}
 
 	err = dynamodbattribute.UnmarshalMap(result.Items[0], &item)
 	if err != nil {
@@ -92,7 +92,7 @@ func (c *DynamoDBClient) GetItem() (*item.Item, error) {
 	return &item, nil
 }
 
-func (c *DynamoDBClient) GetItemWithId(id string) (*item.Item, error) {
+func (c *DynamoDBClient) GetItemWithId(id string) (*dynamo.Item, error) {
 	log.Info().Str("twitterClient", "GetItemWithId").Str("id: ", id)
 
 	params := &dynamodb.GetItemInput{
@@ -114,7 +114,7 @@ func (c *DynamoDBClient) GetItemWithId(id string) (*item.Item, error) {
 		return nil, nil
 	}
 
-	item := item.Item{}
+	item := dynamo.Item{}
 
 	err = dynamodbattribute.UnmarshalMap(result.Item, &item)
 	if err != nil {
