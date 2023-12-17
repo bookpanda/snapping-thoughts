@@ -15,7 +15,7 @@ import (
 )
 
 type DynamoDBClient struct {
-	client    *dynamodb.DynamoDB
+	db        *dynamodb.DynamoDB
 	tableName string
 }
 
@@ -24,10 +24,10 @@ func NewDynamoDBClient(tableName string) *DynamoDBClient {
 		SharedConfigState: session.SharedConfigEnable,
 	}))
 
-	client := dynamodb.New(sess)
+	db := dynamodb.New(sess)
 
 	return &DynamoDBClient{
-		client,
+		db,
 		tableName,
 	}
 }
@@ -44,7 +44,7 @@ func (c *DynamoDBClient) CreateItem(item *dynamo.Item) error {
 		TableName: aws.String(c.tableName),
 	}
 
-	_, err = c.client.PutItem(input)
+	_, err = c.db.PutItem(input)
 	if err != nil {
 		log.Fatal().Str("twitterClient", "Got error calling PutItem").Err(err)
 	}
@@ -71,7 +71,7 @@ func (c *DynamoDBClient) GetItem() (*dynamo.Item, error) {
 		Limit:                     aws.Int64(1),
 	}
 
-	result, err := c.client.Scan(params)
+	result, err := c.db.Scan(params)
 	if err != nil {
 		log.Fatal().Str("twitterClient", "Got error calling Scan").Err(err)
 	}
@@ -104,7 +104,7 @@ func (c *DynamoDBClient) GetItemWithId(id string) (*dynamo.Item, error) {
 		},
 	}
 
-	result, err := c.client.GetItem(params)
+	result, err := c.db.GetItem(params)
 	if err != nil {
 		log.Fatal().Str("twitterClient", "Got error calling GetItem").Err(err)
 	}
@@ -145,7 +145,7 @@ func (c *DynamoDBClient) UpdateItem(id string) error {
 		UpdateExpression: aws.String("set IsUsed = :u"),
 	}
 
-	_, err := c.client.UpdateItem(input)
+	_, err := c.db.UpdateItem(input)
 	if err != nil {
 		log.Fatal().Str("twitterClient", "Got error calling UpdateItem").Err(err)
 	}

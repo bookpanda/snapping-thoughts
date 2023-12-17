@@ -12,7 +12,7 @@ import (
 )
 
 type Seed struct {
-	db *dynamo.DynamoDBClient
+	client *dynamo.DynamoDBClient
 }
 
 type Method struct {
