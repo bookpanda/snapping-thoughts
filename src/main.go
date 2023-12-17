@@ -3,18 +3,25 @@ package main
 import (
 	"encoding/json"
 	"flag"
-	"fmt"
+	"net/http"
 	"os"
 
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/dghubble/oauth1"
+	"github.com/g8rswimmer/go-twitter/v2"
 	"github.com/rs/zerolog/log"
 
 	"github.com/bookpanda/snapping-thoughts/src/client/dynamo"
-	"github.com/bookpanda/snapping-thoughts/src/client/twitter"
+	"github.com/bookpanda/snapping-thoughts/src/client/tweet"
 	seed "github.com/bookpanda/snapping-thoughts/src/seeds"
 	"github.com/joho/godotenv"
 )
+
+// authorize is not used, but is required by the twitter client
+type authorize struct{}
+
+func (a authorize) Add(req *http.Request) {}
 
 func handleArgs(db *dynamo.DynamoDBClient) {
 	flag.Parse()
@@ -47,7 +54,17 @@ func main() {
 	consumerSecret := os.Getenv("CONSUMER_API_SECRET")
 	userToken := os.Getenv("ACCESS_TOKEN")
 	userTokenSecret := os.Getenv("ACCESS_TOKEN_SECRET")
-	twitterClient := twitter.NewTwitterClient(consumerToken, consumerSecret, userToken, userTokenSecret)
+	config := oauth1.NewConfig(consumerToken, consumerSecret)
+	httpClient := config.Client(oauth1.NoContext, &oauth1.Token{
+		Token:       userToken,
+		TokenSecret: userTokenSecret,
+	})
+	twClient := &twitter.Client{
+		Authorizer: authorize{},
+		Client:     httpClient,
+		Host:       "https://api.twitter.com",
+	}
+	twitterClient := tweet.NewTwitterClient(twClient)
 
 	tableName := os.Getenv("TABLE_NAME")
 	awsSession := session.Must(session.NewSessionWithOptions(session.Options{
@@ -80,5 +97,5 @@ func main() {
 	if err != nil {
 		log.Error().Str("twitterClient", "marshal response error").Err(err)
 	}
-	fmt.Println(string(enc))
+	log.Info().Msg(string(enc))
 }
