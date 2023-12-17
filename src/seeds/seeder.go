@@ -7,12 +7,12 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/bookpanda/snapping-thoughts/src/client"
+	"github.com/bookpanda/snapping-thoughts/src/client/dynamo"
 	"github.com/pkg/errors"
 )
 
 type Seed struct {
-	db *client.DynamoDBClient
+	db *dynamo.DynamoDBClient
 }
 
 type Method struct {
@@ -37,7 +37,7 @@ func seed(s Seed, seedMethodName string) error {
 	return nil
 }
 
-func Execute(db *client.DynamoDBClient, seedMethodNames ...string) error {
+func Execute(db *dynamo.DynamoDBClient, seedMethodNames ...string) error {
 	s := Seed{db}
 
 	seedType := reflect.TypeOf(s)

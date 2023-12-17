@@ -8,12 +8,13 @@ import (
 
 	"github.com/rs/zerolog/log"
 
-	"github.com/bookpanda/snapping-thoughts/src/client"
+	"github.com/bookpanda/snapping-thoughts/src/client/dynamo"
+	"github.com/bookpanda/snapping-thoughts/src/client/twitter"
 	seed "github.com/bookpanda/snapping-thoughts/src/seeds"
 	"github.com/joho/godotenv"
 )
 
-func handleArgs(db *client.DynamoDBClient) {
+func handleArgs(db *dynamo.DynamoDBClient) {
 	flag.Parse()
 	args := flag.Args()
 
@@ -44,10 +45,10 @@ func main() {
 	consumerSecret := os.Getenv("CONSUMER_API_SECRET")
 	userToken := os.Getenv("ACCESS_TOKEN")
 	userTokenSecret := os.Getenv("ACCESS_TOKEN_SECRET")
-	twitterClient := client.NewTwitterClient(consumerToken, consumerSecret, userToken, userTokenSecret)
+	twitterClient := twitter.NewTwitterClient(consumerToken, consumerSecret, userToken, userTokenSecret)
 
 	tableName := os.Getenv("TABLE_NAME")
-	dynamoClient := client.NewDynamoDBClient(tableName)
+	dynamoClient := dynamo.NewDynamoDBClient(tableName)
 	handleArgs(dynamoClient)
 
 	item, err := dynamoClient.GetItem()

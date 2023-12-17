@@ -1,4 +1,4 @@
-package client
+package twitter
 
 import (
 	"context"
