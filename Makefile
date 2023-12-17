@@ -1,3 +1,6 @@
+tweet:
+	go run ./src/.
+
 seed:
 	go run ./src/. seed
 
