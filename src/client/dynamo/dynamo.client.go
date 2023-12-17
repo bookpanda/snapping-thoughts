@@ -32,7 +32,7 @@ func NewDynamoDBClient(tableName string) *DynamoDBClient {
 	}
 }
 
-func (c *DynamoDBClient) CreateItem(item item.Item) error {
+func (c *DynamoDBClient) CreateItem(item *item.Item) error {
 	log.Info().Str("twitterClient", "CreateItem")
 	av, err := dynamodbattribute.MarshalMap(item)
 	if err != nil {
