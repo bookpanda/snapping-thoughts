@@ -1,7 +1,6 @@
 package dynamo
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -37,6 +36,7 @@ func (c *DynamoDBClient) CreateItem(item *dynamo.Item) error {
 	av, err := dynamodbattribute.MarshalMap(item)
 	if err != nil {
 		log.Fatal().Str("twitterClient", "Got error marshalling new item").Err(err)
+		return err
 	}
 
 	input := &dynamodb.PutItemInput{
@@ -47,6 +47,7 @@ func (c *DynamoDBClient) CreateItem(item *dynamo.Item) error {
 	_, err = c.db.PutItem(input)
 	if err != nil {
 		log.Fatal().Str("twitterClient", "Got error calling PutItem").Err(err)
+		return err
 	}
 	log.Info().Msgf("Successfully added item with id " + item.Id + " to table " + c.tableName)
 
@@ -74,6 +75,7 @@ func (c *DynamoDBClient) GetItem() (*dynamo.Item, error) {
 	result, err := c.db.Scan(params)
 	if err != nil {
 		log.Fatal().Str("twitterClient", "Got error calling Scan").Err(err)
+		return nil, err
 	}
 
 	if len(result.Items) == 0 {
@@ -85,7 +87,8 @@ func (c *DynamoDBClient) GetItem() (*dynamo.Item, error) {
 
 	err = dynamodbattribute.UnmarshalMap(result.Items[0], &item)
 	if err != nil {
-		panic(fmt.Sprintf("Failed to unmarshal Record, %v", err))
+		log.Fatal().Str("twitterClient", "Got error unmarshalling item").Err(err)
+		return nil, err
 	}
 	log.Info().Msgf("Successfully scanned item with id " + item.Id + " from table " + c.tableName)
 
@@ -107,6 +110,7 @@ func (c *DynamoDBClient) GetItemWithId(id string) (*dynamo.Item, error) {
 	result, err := c.db.GetItem(params)
 	if err != nil {
 		log.Fatal().Str("twitterClient", "Got error calling GetItem").Err(err)
+		return nil, err
 	}
 
 	if result == nil {
@@ -118,7 +122,8 @@ func (c *DynamoDBClient) GetItemWithId(id string) (*dynamo.Item, error) {
 
 	err = dynamodbattribute.UnmarshalMap(result.Item, &item)
 	if err != nil {
-		panic(fmt.Sprintf("Failed to unmarshal Record, %v", err))
+		log.Fatal().Str("twitterClient", "Got error unmarshalling item").Err(err)
+		return nil, err
 	}
 	log.Info().Msgf("Successfully got item with id " + item.Id + " from table " + c.tableName)
 
@@ -148,6 +153,7 @@ func (c *DynamoDBClient) UpdateItem(id string) error {
 	_, err := c.db.UpdateItem(input)
 	if err != nil {
 		log.Fatal().Str("twitterClient", "Got error calling UpdateItem").Err(err)
+		return err
 	}
 	log.Info().Msgf("Successfully updated item with id " + id + " to table " + c.tableName)
 
