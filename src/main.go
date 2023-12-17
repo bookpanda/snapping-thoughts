@@ -5,6 +5,7 @@ import (
 	"flag"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
@@ -83,7 +84,8 @@ func main() {
 		return
 	}
 
-	err = dynamoClient.UpdateItem(item.Id)
+	time := time.Now()
+	err = dynamoClient.UpdateItem(time, item.Id)
 	if err != nil {
 		log.Error().Str("dynamoClient", "update item error").Err(err)
 	}

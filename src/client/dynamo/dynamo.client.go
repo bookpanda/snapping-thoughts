@@ -130,7 +130,7 @@ func (c *DynamoDBClient) GetItemWithId(id string) (*dynamo.Item, error) {
 	return &item, nil
 }
 
-func (c *DynamoDBClient) UpdateItem(id string) error {
+func (c *DynamoDBClient) UpdateItem(time time.Time, id string) error {
 	log.Info().Str("twitterClient", "Updating item with id: "+id)
 	key := map[string]*dynamodb.AttributeValue{
 		"Id": {
@@ -141,7 +141,7 @@ func (c *DynamoDBClient) UpdateItem(id string) error {
 	input := &dynamodb.UpdateItemInput{
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
 			":u": {
-				S: aws.String(time.Now().String()),
+				S: aws.String(time.String()),
 			},
 		},
 		TableName:        aws.String(c.tableName),

@@ -26,6 +26,7 @@ type DynamoClientTest struct {
 	GetItemId       string
 	UpdateItemInput *dynamodb.UpdateItemInput
 	UpdateItemId    string
+	UpdateItemTime  time.Time
 	TableName       string
 }
 
@@ -34,6 +35,8 @@ func TestDynamoClient(t *testing.T) {
 }
 
 func (t *DynamoClientTest) SetupTest() {
+	t.TableName = faker.Word()
+
 	t.Item = &dynamo.Item{
 		Id:      faker.UUIDHyphenated(),
 		IsUsed:  faker.Word(),
@@ -77,6 +80,7 @@ func (t *DynamoClientTest) SetupTest() {
 	}
 
 	t.UpdateItemId = faker.UUIDHyphenated()
+	t.UpdateItemTime = time.Now()
 	key := map[string]*dynamodb.AttributeValue{
 		"Id": {
 			S: aws.String(t.UpdateItemId),
@@ -85,7 +89,7 @@ func (t *DynamoClientTest) SetupTest() {
 	t.UpdateItemInput = &dynamodb.UpdateItemInput{
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
 			":u": {
-				S: aws.String(time.Now().String()),
+				S: aws.String(t.UpdateItemTime.String()),
 			},
 		},
 		TableName:        aws.String(t.TableName),
@@ -93,15 +97,13 @@ func (t *DynamoClientTest) SetupTest() {
 		ReturnValues:     aws.String("UPDATED_NEW"),
 		UpdateExpression: aws.String("set IsUsed = :u"),
 	}
-
-	t.TableName = faker.Word()
 }
 
 func (t *DynamoClientTest) TestCreateItemSuccess() {
 	output := &dynamodb.PutItemOutput{}
 
 	db := mock.DatabaseMock{}
-	db.On("PutItem", &t.PutItemInput).Return(output, nil)
+	db.On("PutItem", t.PutItemInput).Return(output, nil)
 
 	client := NewDynamoDBClient(&db, t.TableName)
 	err := client.CreateItem(t.Item)
@@ -113,7 +115,7 @@ func (t *DynamoClientTest) TestCreateItemInternalErr() {
 	output := &dynamodb.PutItemOutput{}
 
 	db := mock.DatabaseMock{}
-	db.On("PutItem", &t.PutItemInput).Return(output, errors.New("something wrong"))
+	db.On("PutItem", t.PutItemInput).Return(output, errors.New("something wrong"))
 
 	client := NewDynamoDBClient(&db, t.TableName)
 	err := client.CreateItem(t.Item)
@@ -140,7 +142,7 @@ func (t *DynamoClientTest) TestGetItemSuccess() {
 	}
 
 	db := mock.DatabaseMock{}
-	db.On("Scan", &t.ScanItemInput).Return(output, nil)
+	db.On("Scan", t.ScanItemInput).Return(output, nil)
 
 	client := NewDynamoDBClient(&db, t.TableName)
 	res, err := client.GetItem()
@@ -153,7 +155,7 @@ func (t *DynamoClientTest) TestGetItemInternalErr() {
 	output := &dynamodb.ScanOutput{}
 
 	db := mock.DatabaseMock{}
-	db.On("Scan", &t.ScanItemInput).Return(output, errors.New("something wrong"))
+	db.On("Scan", t.ScanItemInput).Return(output, errors.New("something wrong"))
 
 	client := NewDynamoDBClient(&db, t.TableName)
 	_, err := client.GetItem()
@@ -178,7 +180,7 @@ func (t *DynamoClientTest) TestGetItemWithIdSuccess() {
 	}
 
 	db := mock.DatabaseMock{}
-	db.On("GetItem", &t.GetItemInput).Return(output, nil)
+	db.On("GetItem", t.GetItemInput).Return(output, nil)
 
 	client := NewDynamoDBClient(&db, t.TableName)
 	res, err := client.GetItemWithId(t.GetItemId)
@@ -191,7 +193,7 @@ func (t *DynamoClientTest) TestGetItemWithIdInternalErr() {
 	output := &dynamodb.GetItemOutput{}
 
 	db := mock.DatabaseMock{}
-	db.On("GetItem", &t.GetItemInput).Return(output, errors.New("something wrong"))
+	db.On("GetItem", t.GetItemInput).Return(output, errors.New("something wrong"))
 
 	client := NewDynamoDBClient(&db, t.TableName)
 	_, err := client.GetItemWithId(t.GetItemId)
@@ -203,10 +205,10 @@ func (t *DynamoClientTest) TestUpdateItemSuccess() {
 	output := &dynamodb.UpdateItemOutput{}
 
 	db := mock.DatabaseMock{}
-	db.On("UpdateItem", &t.UpdateItemInput).Return(output, nil)
+	db.On("UpdateItem", t.UpdateItemInput).Return(output, nil)
 
 	client := NewDynamoDBClient(&db, t.TableName)
-	err := client.UpdateItem(t.UpdateItemId)
+	err := client.UpdateItem(t.UpdateItemTime, t.UpdateItemId)
 
 	assert.Nil(t.T(), err)
 }
@@ -215,10 +217,10 @@ func (t *DynamoClientTest) TestUpdateItemInternalErr() {
 	output := &dynamodb.UpdateItemOutput{}
 
 	db := mock.DatabaseMock{}
-	db.On("UpdateItem", &t.UpdateItemInput).Return(output, errors.New("something wrong"))
+	db.On("UpdateItem", t.UpdateItemInput).Return(output, errors.New("something wrong"))
 
 	client := NewDynamoDBClient(&db, t.TableName)
-	err := client.UpdateItem(t.UpdateItemId)
+	err := client.UpdateItem(t.UpdateItemTime, t.UpdateItemId)
 
 	assert.Error(t.T(), err)
 }
