@@ -113,8 +113,8 @@ func HandleLambdaEvent(event *Event) (*Response, error) {
 }
 
 func main() {
-	loadEnv()
 	// use this for seeding, testing
+	// loadEnv()
 	// HandleLambdaEvent(&Event{})
 
 	// use this for lambda deployment

@@ -30,7 +30,7 @@ Snapping-thoughts is a Twitter bot that tweets a random shower thought from the 
 -  Run `make tweet` or `go run src/main.go`
 
 ### Testing
-1. Make sure that in ```main.go```, line 121 is commented out and line 118 is uncommented.
+1. Make sure that in ```main.go```, line 121 is commented out and line 117-118 is uncommented.
 2. Run `make test` or `go test  -v -coverpkg ./... -coverprofile coverage.out -covermode count ./...`
 
 ### Deployment
