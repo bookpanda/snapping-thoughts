@@ -66,7 +66,6 @@ func (t *DynamoClientTest) SetupTest() {
 		FilterExpression:          expr.Filter(),
 		ProjectionExpression:      expr.Projection(),
 		TableName:                 aws.String(t.TableName),
-		Limit:                     aws.Int64(1),
 	}
 
 	t.GetItemId = faker.UUIDHyphenated()
