@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/dghubble/oauth1"
@@ -114,8 +115,8 @@ func HandleLambdaEvent(event *Event) (*Response, error) {
 
 func main() {
 	// use this for seeding, testing
-	HandleLambdaEvent(&Event{})
+	// HandleLambdaEvent(&Event{})
 
 	// use this for lambda deployment
-	// lambda.Start(HandleLambdaEvent)
+	lambda.Start(HandleLambdaEvent)
 }
