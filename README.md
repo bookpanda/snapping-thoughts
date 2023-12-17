@@ -1,8 +1,6 @@
 # Snapping-thoughts (Twitter Bot cron-job)
 
-MyGraderList is a web app that lets students assess the difficulties and worthiness of each DSA grader problem in their respective courses.
-
-MyGraderList Backend handles the business logic of the MyGraderList app i.e. CRUD operations for the problems' ratings, likes and emojis. 
+Snapping-thoughts is a Twitter bot that tweets a random shower thought from the list of quotes (```src/seeds/item.seeds.go```) every 24 hours.
 
 ## Technologies
 
@@ -33,3 +31,6 @@ MyGraderList Backend handles the business logic of the MyGraderList app i.e. CRU
 
 ### Testing
 1. Run `make test` or `go test  -v -coverpkg ./... -coverprofile coverage.out -covermode count ./...`
+
+### Deployment
+Consult this [AWS Lambda deployment for Go](https://docs.aws.amazon.com/lambda/latest/dg/golang-package.html) to deploy the app to AWS Lambda. Make sure comment the correct line in main.go before deploying.
