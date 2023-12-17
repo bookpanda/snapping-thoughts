@@ -1,4 +1,4 @@
-package twitter
+package tweet
 
 import (
 	"github.com/g8rswimmer/go-twitter/v2"
