@@ -38,7 +38,7 @@ Snapping-thoughts is a Twitter bot that tweets a random shower thought from the 
 2. Run `make test` or `go test  -v -coverpkg ./... -coverprofile coverage.out -covermode count ./...`
 
 ## Deployment
-Consult this [AWS Lambda deployment for Go](https://docs.aws.amazon.com/lambda/latest/dg/golang-package.html) to deploy the app to AWS Lambda. Make sure comment the correct line in main.go before deploying. Here are the commands to deploy to Lambda.
+Consult [AWS Lambda deployment for Go](https://docs.aws.amazon.com/lambda/latest/dg/golang-package.html) to deploy the app to AWS Lambda. Make sure comment the correct line in main.go before deploying. Here are the commands to deploy to Lambda.
 ### Deploy with CloudFormation
 1. Copy `example.deploy.yaml` and paste it in the same directory as `deploy.yaml`, then fill in the appropriate values. The ARN is the ARN of the IAM role for the Lambda function.
 2. Run these:
