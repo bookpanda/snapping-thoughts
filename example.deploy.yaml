@@ -1,0 +1,24 @@
+Resources:
+  LambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Architectures: 
+        - arm64
+      Code: 
+        S3Bucket: your_bucket_name
+        S3Key: myFunction.zip
+      Description: Snapping Thoughts Lambda deployment
+      Environment: 
+        Variables: 
+          CONSUMER_API_KEY: <your_consumer_api_key>
+          CONSUMER_API_SECRET: <your_consumer_api_secret>
+          ACCESS_TOKEN: <your_access_token>
+          ACCESS_TOKEN_SECRET: <your_access_token_secret>
+          TABLE_NAME: <your_table_name>
+      EphemeralStorage: 
+        Size: 512
+      FunctionName: SnappingThoughts
+      Handler: bootstrap
+      PackageType: Zip
+      Role: <your_role_arn>
+      Runtime: provided.al2023

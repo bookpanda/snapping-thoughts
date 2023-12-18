@@ -5,3 +5,5 @@ coverage.html
 bootstrap
 myFunction.zip
 commands.txt
+deploy.yaml
+.vscode
